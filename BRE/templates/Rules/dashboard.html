@@ -1,0 +1,122 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Dashboard - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of your rules engine — rules, evaluations, and performance.</p>
+</div>
+
+<!-- Rule Stats -->
+<h2 style="color: #8b949e; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">📝 Rules Overview</h2>
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-number">{{ total_rules }}</div>
+        <div class="stat-label">Total Rules</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-number">{{ active_rules }}</div>
+        <div class="stat-label">Active</div>
+    </div>
+    <div class="stat-card stat-red">
+        <div class="stat-number">{{ inactive_rules }}</div>
+        <div class="stat-label">Inactive</div>
+    </div>
+</div>
+
+<!-- Category Breakdown -->
+<h2 style="color: #8b949e; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem;">📂 Active Rules by Category</h2>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-number" style="color: #f85149;">{{ mandatory_count }}</div>
+        <div class="stat-label">Mandatory</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #58a6ff;">{{ scoring_count }}</div>
+        <div class="stat-label">Scoring</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #e3b341;">{{ warning_count }}</div>
+        <div class="stat-label">Warning</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number" style="color: #bc8cff;">{{ info_count }}</div>
+        <div class="stat-label">Informational</div>
+    </div>
+</div>
+
+<!-- Evaluation Stats -->
+<h2 style="color: #8b949e; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; margin-top: 2rem;">📊 Evaluation Statistics</h2>
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-number">{{ total_evaluations }}</div>
+        <div class="stat-label">Total Evaluations</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-number">{{ approved_count }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card stat-red">
+        <div class="stat-number">{{ rejected_count }}</div>
+        <div class="stat-label">Rejected</div>
+    </div>
+    <div class="stat-card stat-yellow">
+        <div class="stat-number">{{ review_count }}</div>
+        <div class="stat-label">Manual Review</div>
+    </div>
+    <div class="stat-card stat-purple">
+        <div class="stat-number">{{ approval_rate }}%</div>
+        <div class="stat-label">Approval Rate</div>
+    </div>
+</div>
+
+<!-- Active Threshold -->
+{% if threshold %}
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-title">⚙️ Active Decision Threshold</div>
+    <p style="margin-bottom: 0.5rem;"><strong>Name:</strong> {{ threshold.name }}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Approve when score ≥</strong> {{ threshold.min_score_approve }}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Manual Review when score ≥</strong> {{ threshold.min_score_review }}</p>
+    <p><strong>Reject when score &lt;</strong> {{ threshold.min_score_review }}</p>
+</div>
+{% else %}
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-title">⚙️ Decision Threshold</div>
+    <p style="color: #8b949e;">No active threshold set. Using defaults: Approve ≥ 80, Manual Review ≥ 60.</p>
+</div>
+{% endif %}
+
+<!-- Recent Evaluations -->
+{% if recent_logs %}
+<div class="card" style="margin-top: 1.5rem;">
+    <div class="card-title">🕐 Recent Evaluations</div>
+    <div class="table-wrapper" style="border: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Decision</th>
+                    <th>Score</th>
+                    <th>Risk</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in recent_logs %}
+                <tr>
+                    <td>
+                        <a href="{% url 'evaluation_detail' log.id %}">{{ log.applicant_name }}</a>
+                    </td>
+                    <td><span class="badge badge-{{ log.decision }}">{{ log.decision|upper }}</span></td>
+                    <td>{{ log.final_score }}</td>
+                    <td><span class="badge badge-{{ log.risk_level }}">{{ log.risk_level|upper }}</span></td>
+                    <td>{{ log.evaluated_at|date:"d M Y, H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

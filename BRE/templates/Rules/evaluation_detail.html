@@ -1,0 +1,107 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Evaluation #{{ log.id }} - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <div class="page-header">
+        <h1>Evaluation Details #{{ log.id }}</h1>
+        <p>{{ log.applicant_name }} — {{ log.evaluated_at|date:"d M Y, H:i" }}</p>
+    </div>
+    <a href="{% url 'evaluation_history' %}" class="btn btn-secondary">← Back to History</a>
+</div>
+
+<!-- Decision Summary -->
+<div class="result-card">
+    <div class="result-header">
+        <div class="result-decision decision-{{ log.decision }}">
+            {% if log.decision == 'approved' %}✅ APPROVED
+            {% elif log.decision == 'rejected' %}❌ REJECTED
+            {% else %}⏳ MANUAL REVIEW
+            {% endif %}
+        </div>
+        <div class="result-score">{{ log.final_score }}</div>
+        <div>Points</div>
+        <div class="result-risk" style="margin-top: 0.5rem;">
+            Risk Level: <span class="badge badge-{{ log.risk_level }}">{{ log.risk_level|upper }}</span>
+        </div>
+    </div>
+
+    <!-- Application Data -->
+    <div class="result-section">
+        <h3>📄 Application Data</h3>
+        <div class="table-wrapper" style="margin-top: 0.5rem;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key, value in app_data.items %}
+                    <tr>
+                        <td><strong>{{ key|title }}</strong></td>
+                        <td>{{ value }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rules Passed -->
+    {% if rules_passed %}
+    <div class="result-section">
+        <h3>✅ Rules Passed ({{ rules_passed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in rules_passed %}
+            <li class="passed">✓ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Rules Failed -->
+    {% if rules_failed %}
+    <div class="result-section">
+        <h3>❌ Rules Failed ({{ rules_failed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in rules_failed %}
+            <li class="failed">✗ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Warnings -->
+    {% if warnings_list %}
+    <div class="result-section">
+        <h3>⚠️ Warnings</h3>
+        <ul class="result-list">
+            {% for w in warnings_list %}
+            <li class="warning-item">⚠ {{ w }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Info -->
+    {% if info_list %}
+    <div class="result-section">
+        <h3>ℹ️ Information</h3>
+        <ul class="result-list">
+            {% for info in info_list %}
+            <li class="info-item">ℹ {{ info }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Full Explanation -->
+    <div class="result-section">
+        <h3>📋 Full Explanation</h3>
+        <div class="explanation-box">{{ log.full_explanation }}</div>
+    </div>
+</div>
+{% endblock %}

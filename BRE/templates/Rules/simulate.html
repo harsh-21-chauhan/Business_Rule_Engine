@@ -1,0 +1,106 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Simulate - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Rule Simulation</h1>
+    <p>Test your rules with sample data. Nothing is saved to the database during simulation.</p>
+</div>
+
+<div class="sim-banner">
+    🧪 Simulation Mode — Results are NOT saved. Use this to test before going live.
+</div>
+
+<!-- Simulation Form -->
+<div class="card">
+    <div class="card-title">Test Data</div>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="applicant_name">Test Name</label>
+            <input type="text" id="applicant_name" name="applicant_name" class="form-control" placeholder="Test User" value="Test User">
+        </div>
+
+        {% if field_names %}
+        <div class="form-row">
+            {% for field in field_names %}
+            <div class="form-group">
+                <label for="{{ field }}">{{ field|title }}</label>
+                <input type="text" id="{{ field }}" name="{{ field }}" class="form-control" placeholder="Enter {{ field }}">
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No active rules found. Create some rules first to simulate.</p>
+            <a href="{% url 'add_rule' %}" class="btn btn-primary">Add Rules</a>
+        </div>
+        {% endif %}
+
+        {% if field_names %}
+        <button type="submit" class="btn btn-blue">Run Simulation</button>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Simulation Result -->
+{% if result %}
+<div class="result-card">
+    <div class="sim-banner">🧪 Simulation Result (Not Saved)</div>
+
+    <div class="result-header">
+        <div class="result-decision decision-{{ result.decision }}">
+            {% if result.decision == 'approved' %}✅ WOULD BE APPROVED
+            {% elif result.decision == 'rejected' %}❌ WOULD BE REJECTED
+            {% else %}⏳ WOULD NEED MANUAL REVIEW
+            {% endif %}
+        </div>
+        <div class="result-score">{{ result.final_score }}</div>
+        <div>Points</div>
+        <div class="result-risk" style="margin-top: 0.5rem;">
+            Risk Level: <span class="badge badge-{{ result.risk_level }}">{{ result.risk_level|upper }}</span>
+        </div>
+    </div>
+
+    {% if result.rules_passed %}
+    <div class="result-section">
+        <h3>✅ Rules Passed ({{ result.rules_passed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in result.rules_passed %}
+            <li class="passed">✓ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if result.rules_failed %}
+    <div class="result-section">
+        <h3>❌ Rules Failed ({{ result.rules_failed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in result.rules_failed %}
+            <li class="failed">✗ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if result.warnings %}
+    <div class="result-section">
+        <h3>⚠️ Warnings</h3>
+        <ul class="result-list">
+            {% for w in result.warnings %}
+            <li class="warning-item">⚠ {{ w }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="result-section">
+        <h3>📋 Full Explanation</h3>
+        <div class="explanation-box">{{ result.full_explanation }}</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

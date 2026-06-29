@@ -1,0 +1,91 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}All Rules - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="top-bar">
+    <div class="page-header">
+        <h1>Business Rules</h1>
+        <p>All configured rules. Lower priority number runs first.</p>
+    </div>
+    <a href="{% url 'add_rule' %}" class="btn btn-primary">+ Add New Rule</a>
+</div>
+
+{% if rules %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Priority</th>
+                <th>Rule Name</th>
+                <th>Field</th>
+                <th>Operator</th>
+                <th>Value</th>
+                <th>Category</th>
+                <th>Weight</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rule in rules %}
+            <tr>
+                <td>{{ rule.priority }}</td>
+                <td>
+                    <strong>{{ rule.rule_name }}</strong>
+                    {% if rule.parent_rule %}
+                    <br><span style="font-size: 0.8rem; color: #e3b341;">↳ edit of "{{ rule.parent_rule.rule_name }}"</span>
+                    {% endif %}
+                </td>
+                <td>{{ rule.field_name }}</td>
+                <td>{{ rule.operator }}</td>
+                <td>{{ rule.value }}</td>
+                <td><span class="badge badge-{{ rule.category }}">{{ rule.get_category_display }}</span></td>
+                <td>{% if rule.weight > 0 %}+{{ rule.weight }}{% else %}{{ rule.weight }}{% endif %}</td>
+                <td>
+                    {% if rule.status == 'active' and rule.is_active %}
+                    <span class="badge badge-active">Active</span>
+                    {% elif rule.status == 'active' and not rule.is_active %}
+                    <span class="badge badge-inactive">Disabled</span>
+                    {% elif rule.status == 'pending' %}
+                    <span class="badge badge-manual_review">Pending</span>
+                    {% elif rule.status == 'rejected' %}
+                    <span class="badge badge-rejected">Rejected</span>
+                    {% else %}
+                    <span class="badge badge-inactive">{{ rule.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-links">
+                        {% if rule.status == 'active' %}
+                        <a href="{% url 'edit_rule' rule.id %}" class="btn btn-sm btn-blue">Edit</a>
+                        {% if user.is_superuser %}
+                        <a href="{% url 'toggle_rule' rule.id %}" class="btn btn-sm btn-secondary">
+                            {% if rule.is_active %}Disable{% else %}Enable{% endif %}
+                        </a>
+                        <a href="{% url 'delete_rule' rule.id %}" class="btn btn-sm btn-danger">Delete</a>
+                        {% endif %}
+                        {% elif rule.status == 'pending' and rule.created_by == user %}
+                        <span style="color: #e3b341; font-size: 0.85rem;">Awaiting approval...</span>
+                        {% elif rule.status == 'rejected' %}
+                        <span style="color: #f85149; font-size: 0.85rem;" title="{{ rule.admin_notes }}">
+                            Rejected{% if rule.admin_notes %} — hover for reason{% endif %}
+                        </span>
+                        {% if rule.created_by == user or user.is_superuser %}
+                        <a href="{% url 'delete_rule' rule.id %}" class="btn btn-sm btn-danger">Remove</a>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No rules created yet.</p>
+    <a href="{% url 'add_rule' %}" class="btn btn-primary">Create Your First Rule</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Pending Approvals - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Pending Approvals</h1>
+    <p>Rules submitted by employees waiting for your approval. Approve to make them active, or reject to discard.</p>
+</div>
+
+{% if pending_rules %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Submitted By</th>
+                <th>Rule Name</th>
+                <th>Field</th>
+                <th>Operator</th>
+                <th>Value</th>
+                <th>Category</th>
+                <th>Weight</th>
+                <th>Type</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rule in pending_rules %}
+            <tr>
+                <td>
+                    {% if rule.created_by %}{{ rule.created_by.username }}{% else %}Unknown{% endif %}
+                </td>
+                <td><strong>{{ rule.rule_name }}</strong></td>
+                <td>{{ rule.field_name }}</td>
+                <td>{{ rule.operator }}</td>
+                <td>{{ rule.value }}</td>
+                <td><span class="badge badge-{{ rule.category }}">{{ rule.get_category_display }}</span></td>
+                <td>{% if rule.weight > 0 %}+{{ rule.weight }}{% else %}{{ rule.weight }}{% endif %}</td>
+                <td>
+                    {% if rule.parent_rule %}
+                    <span class="badge badge-warning" style="background: rgba(210, 153, 34, 0.2); color: #e3b341;">Edit</span>
+                    {% else %}
+                    <span class="badge badge-scoring">New</span>
+                    {% endif %}
+                </td>
+                <td>{{ rule.created_at|date:"d M Y, H:i" }}</td>
+                <td>
+                    <div class="action-links">
+                        <a href="{% url 'approve_rule' rule.id %}" class="btn btn-sm btn-primary">Approve</a>
+                        <a href="{% url 'reject_rule' rule.id %}" class="btn btn-sm btn-danger">Reject</a>
+                    </div>
+                </td>
+            </tr>
+            {% if rule.parent_rule %}
+            <tr>
+                <td colspan="10" style="padding: 0.5rem 1rem; background: rgba(210, 153, 34, 0.05); font-size: 0.85rem; color: #e3b341;">
+                    ⤷ This is an edit of existing rule: <strong>"{{ rule.parent_rule.rule_name }}"</strong>
+                    (Original: {{ rule.parent_rule.field_name }} {{ rule.parent_rule.operator }} {{ rule.parent_rule.value }})
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>🎉 No pending approvals. All caught up!</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Home - Business Rules Engine{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero">
+    <h1>Dynamic Business Rules Engine</h1>
+    <p>
+        Configure and manage business rules without writing code.
+        Create rules, evaluate applications, and get transparent decisions — all from one place.
+    </p>
+    <div class="hero-actions">
+        <a href="{% url 'evaluate' %}" class="btn btn-primary">Evaluate Application</a>
+        <a href="{% url 'rule_list' %}" class="btn btn-blue">Manage Rules</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">View Dashboard</a>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="stats-grid">
+    <div class="stat-card stat-blue">
+        <div class="stat-number">{{ active_rules }}</div>
+        <div class="stat-label">Active Rules</div>
+    </div>
+    <div class="stat-card stat-green">
+        <div class="stat-number">{{ approved_count }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card stat-red">
+        <div class="stat-number">{{ rejected_count }}</div>
+        <div class="stat-label">Rejected</div>
+    </div>
+    <div class="stat-card stat-yellow">
+        <div class="stat-number">{{ review_count }}</div>
+        <div class="stat-label">Manual Review</div>
+    </div>
+</div>
+
+<!-- Features -->
+<div class="page-header">
+    <h1>How It Works</h1>
+    <p>The engine separates business logic from code, making policy updates instant.</p>
+</div>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <div class="feature-icon">📝</div>
+        <h3>Create Rules</h3>
+        <p>Define business rules through the web interface. Set field names, operators, values, categories, priorities and weights.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Updates</h3>
+        <p>Change rules at any time. No code changes, no redeployment. Rules take effect immediately.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Evaluate Applications</h3>
+        <p>Submit application data and the engine evaluates it against all active rules automatically.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Transparent Decisions</h3>
+        <p>Every decision comes with a full explanation — which rules passed, which failed, and why.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🧪</div>
+        <h3>Simulate First</h3>
+        <p>Test your rules with sample data before going live. No evaluation is saved during simulation.</p>
+    </div>
+    <div class="feature-card">
+        <div class="feature-icon">🏢</div>
+        <h3>Multiple Domains</h3>
+        <p>Loan approval, insurance claims, HR, e-commerce — the same engine works for any business domain.</p>
+    </div>
+</div>
+{% endblock %}

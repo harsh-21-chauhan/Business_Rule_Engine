@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dynamic Business Rules Engine - Configure and evaluate business rules without code changes">
+    <title>{% block title %}Business Rules Engine{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="{% url 'home' %}">⚙️ BRE</a>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="nav-links">
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+            <a href="{% url 'dashboard' %}" class="nav-link">Dashboard</a>
+            <a href="{% url 'rule_list' %}" class="nav-link">Rules</a>
+            <a href="{% url 'evaluate' %}" class="nav-link">Evaluate</a>
+            <a href="{% url 'simulate' %}" class="nav-link">Simulate</a>
+            <a href="{% url 'evaluation_history' %}" class="nav-link">History</a>
+            {% if user.is_superuser %}
+            <a href="{% url 'pending_approvals' %}" class="nav-link nav-link-approval">
+                Approvals
+                {% if pending_count and pending_count > 0 %}
+                <span class="pending-badge">{{ pending_count }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+        </div>
+        <div class="nav-user">
+            <span class="nav-username">
+                {% if user.is_superuser %}👑{% else %}👤{% endif %}
+                {{ user.username }}
+            </span>
+            <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+            <span class="alert-close" onclick="this.parentElement.remove()">×</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Dynamic Business Rules Engine &copy; 2025 | Built with Django</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Edit Rule - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Edit Rule: {{ rule.rule_name }}</h1>
+    <p>Update the rule configuration. Changes take effect immediately.</p>
+</div>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="rule_name">Rule Name</label>
+                <input type="text" id="rule_name" name="rule_name" class="form-control" required value="{{ rule.rule_name }}">
+            </div>
+            <div class="form-group">
+                <label for="field_name">Field Name</label>
+                <input type="text" id="field_name" name="field_name" class="form-control" required value="{{ rule.field_name }}">
+                <div class="form-hint">The field name from the application data to check</div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="operator">Operator</label>
+                <select id="operator" name="operator" class="form-control">
+                    {% for val, display in operator_choices %}
+                    <option value="{{ val }}" {% if val == rule.operator %}selected{% endif %}>{{ val }} ({{ display }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="value">Comparison Value</label>
+                <input type="text" id="value" name="value" class="form-control" required value="{{ rule.value }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" class="form-control">
+                    {% for val, display in category_choices %}
+                    <option value="{{ val }}" {% if val == rule.category %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select>
+                <div class="form-hint">Mandatory = must pass. Scoring = adds weight to score.</div>
+            </div>
+            <div class="form-group">
+                <label for="action">Action</label>
+                <select id="action" name="action" class="form-control">
+                    {% for val, display in action_choices %}
+                    <option value="{{ val }}" {% if val == rule.action %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="priority">Priority</label>
+                <input type="number" id="priority" name="priority" class="form-control" value="{{ rule.priority }}" min="1">
+                <div class="form-hint">Lower number = runs first</div>
+            </div>
+            <div class="form-group">
+                <label for="weight">Weight (Score)</label>
+                <input type="number" id="weight" name="weight" class="form-control" value="{{ rule.weight }}" min="0">
+                <div class="form-hint">Points added to the final score when this rule passes</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="explanation_pass">Explanation (When Passes)</label>
+            <textarea id="explanation_pass" name="explanation_pass" class="form-control">{{ rule.explanation_pass }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="explanation_fail">Explanation (When Fails)</label>
+            <textarea id="explanation_fail" name="explanation_fail" class="form-control">{{ rule.explanation_fail }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="is_active" name="is_active" {% if rule.is_active %}checked{% endif %}>
+                <label for="is_active">Active (rule will be used during evaluation)</label>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'rule_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

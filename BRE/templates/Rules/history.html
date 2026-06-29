@@ -1,0 +1,48 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Evaluation History - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Evaluation History</h1>
+    <p>All past evaluations are logged here. Click on any entry to see the full details.</p>
+</div>
+
+{% if logs %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Applicant</th>
+                <th>Decision</th>
+                <th>Score</th>
+                <th>Risk Level</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.id }}</td>
+                <td><strong>{{ log.applicant_name }}</strong></td>
+                <td><span class="badge badge-{{ log.decision }}">{{ log.decision|upper }}</span></td>
+                <td>{{ log.final_score }}</td>
+                <td><span class="badge badge-{{ log.risk_level }}">{{ log.risk_level|upper }}</span></td>
+                <td>{{ log.evaluated_at|date:"d M Y, H:i" }}</td>
+                <td>
+                    <a href="{% url 'evaluation_detail' log.id %}" class="btn btn-sm btn-blue">View Details</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No evaluations yet.</p>
+    <a href="{% url 'evaluate' %}" class="btn btn-primary">Run Your First Evaluation</a>
+</div>
+{% endif %}
+{% endblock %}

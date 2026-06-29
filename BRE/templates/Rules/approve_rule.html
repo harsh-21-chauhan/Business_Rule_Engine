@@ -1,0 +1,44 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Approve Rule - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Approve Rule</h1>
+    <p>Review the details below and approve this rule to make it active.</p>
+</div>
+
+<div class="card">
+    <div class="card-title">{{ rule.rule_name }}</div>
+
+    {% if rule.parent_rule %}
+    <div class="sim-banner" style="margin-bottom: 1.5rem;">
+        📝 This is an edit of existing rule: <strong>"{{ rule.parent_rule.rule_name }}"</strong><br>
+        Original: {{ rule.parent_rule.field_name }} {{ rule.parent_rule.operator }} {{ rule.parent_rule.value }}
+        → New: {{ rule.field_name }} {{ rule.operator }} {{ rule.value }}
+    </div>
+    {% endif %}
+
+    <p style="margin-bottom: 0.5rem;"><strong>Submitted By:</strong> {% if rule.created_by %}{{ rule.created_by.username }}{% else %}Unknown{% endif %}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Field:</strong> {{ rule.field_name }} {{ rule.operator }} {{ rule.value }}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Category:</strong> <span class="badge badge-{{ rule.category }}">{{ rule.get_category_display }}</span></p>
+    <p style="margin-bottom: 0.5rem;"><strong>Priority:</strong> {{ rule.priority }}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Weight:</strong> {{ rule.weight }}</p>
+    <p style="margin-bottom: 0.5rem;"><strong>Pass Explanation:</strong> {{ rule.explanation_pass|default:"—" }}</p>
+    <p style="margin-bottom: 1.5rem;"><strong>Fail Explanation:</strong> {{ rule.explanation_fail|default:"—" }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="admin_notes">Admin Notes (optional)</label>
+            <textarea id="admin_notes" name="admin_notes" class="form-control" placeholder="Add any notes about this approval..."></textarea>
+        </div>
+
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">✅ Approve This Rule</button>
+            <a href="{% url 'pending_approvals' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

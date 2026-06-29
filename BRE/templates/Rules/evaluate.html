@@ -1,0 +1,118 @@
+{% extends 'Rules/base.html' %}
+
+{% block title %}Evaluate Application - Business Rules Engine{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Evaluate Application</h1>
+    <p>Submit application data below. The engine will evaluate it against all active rules and give you a decision.</p>
+</div>
+
+<!-- Application Form -->
+<div class="card">
+    <div class="card-title">Application Data</div>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="applicant_name">Applicant Name</label>
+            <input type="text" id="applicant_name" name="applicant_name" class="form-control" placeholder="Enter applicant name" value="{% if result %}{{ result.applicant_name }}{% endif %}">
+        </div>
+
+        {% if field_names %}
+        <div class="form-row">
+            {% for field in field_names %}
+            <div class="form-group">
+                <label for="{{ field }}">{{ field|title }}</label>
+                <input type="text" id="{{ field }}" name="{{ field }}" class="form-control" placeholder="Enter {{ field }}"
+                    {% if result %}value="{{ result.application_data|dictsort:field }}"{% endif %}>
+                <div class="form-hint">Field used by active rules</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No active rules found. Please create and activate some rules first.</p>
+            <a href="{% url 'add_rule' %}" class="btn btn-primary">Add Rules</a>
+        </div>
+        {% endif %}
+
+        {% if field_names %}
+        <button type="submit" class="btn btn-primary">Run Evaluation</button>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Result Display -->
+{% if result %}
+<div class="result-card">
+    <div class="result-header">
+        <div class="result-decision decision-{{ result.decision }}">
+            {% if result.decision == 'approved' %}✅ APPROVED
+            {% elif result.decision == 'rejected' %}❌ REJECTED
+            {% else %}⏳ MANUAL REVIEW
+            {% endif %}
+        </div>
+        <div class="result-score">{{ result.final_score }}</div>
+        <div>Points</div>
+        <div class="result-risk" style="margin-top: 0.5rem;">
+            Risk Level: <span class="badge badge-{{ result.risk_level }}">{{ result.risk_level|upper }}</span>
+        </div>
+    </div>
+
+    <!-- Rules Passed -->
+    {% if result.rules_passed %}
+    <div class="result-section">
+        <h3>✅ Rules Passed ({{ result.rules_passed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in result.rules_passed %}
+            <li class="passed">✓ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Rules Failed -->
+    {% if result.rules_failed %}
+    <div class="result-section">
+        <h3>❌ Rules Failed ({{ result.rules_failed|length }})</h3>
+        <ul class="result-list">
+            {% for rule in result.rules_failed %}
+            <li class="failed">✗ {{ rule }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Warnings -->
+    {% if result.warnings %}
+    <div class="result-section">
+        <h3>⚠️ Warnings</h3>
+        <ul class="result-list">
+            {% for w in result.warnings %}
+            <li class="warning-item">⚠ {{ w }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Info -->
+    {% if result.info_messages %}
+    <div class="result-section">
+        <h3>ℹ️ Information</h3>
+        <ul class="result-list">
+            {% for info in result.info_messages %}
+            <li class="info-item">ℹ {{ info }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Full Explanation -->
+    <div class="result-section">
+        <h3>📋 Full Explanation</h3>
+        <div class="explanation-box">{{ result.full_explanation }}</div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
